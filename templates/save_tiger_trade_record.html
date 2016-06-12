@@ -1,0 +1,140 @@
+{% extends '__base__.html' %}
+
+{% block title %}添加老虎交易记录{% endblock %}
+
+{% block beforehead %}
+
+<script>
+var
+    ID = '{{ id }}',
+    action = '{{ action }}';
+function initVM(stock) {
+    var vm = new Vue({
+        el: '#vm',
+        data: stock,
+        methods: {
+            submit: function (event) {
+                event.preventDefault();
+                var $form = $('#vm').find('form');
+                $form.postJSON(action, this.$data, function (err, r) {
+                    if (err) {
+                        $form.showFormError(err);
+                    }
+                    else {
+                        return location.assign('/manage/stocks_tiger');
+                    }
+                });
+            }
+        }
+    });
+    $('#vm').show();
+}
+$(function () {
+    if (ID) {
+        getJSON('/api/stocks/' + ID, function (err, blog) {
+            if (err) {
+                return fatal(err);
+            }
+            $('#loading').hide();
+            initVM(blog);
+        });
+    }
+    else {
+        $('#loading').hide();
+        initVM({
+            stock_code: '',
+			type: 'B',
+            occur_amount: ''
+        });
+    }
+
+	
+});
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="uk-width-1-1 uk-margin-bottom">
+        <div class="uk-panel uk-panel-box">
+            <ul class="uk-breadcrumb">
+                <li><a href="/">主页</a></li>
+                <li><a href="/manage/stocks_tiger">老虎记录</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="error" class="uk-width-1-1">
+    </div>
+
+    <div id="loading" class="uk-width-1-1 uk-text-center">
+        <span><i class="uk-icon-spinner uk-icon-medium uk-icon-spin"></i> 正在加载...</span>
+    </div>
+
+    <div id="vm" class="uk-width-2-3">
+        <form v-on="submit: submit" class="uk-form uk-form-horizontal">
+            <div class="uk-alert uk-alert-danger uk-hidden"></div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">类型:</label>
+				<div class="uk-form-controls">
+                    <select v-model="type" name="type" class="uk-width-2-10">
+						<option value="B">买入</option>
+						<option value="S">卖出</option>
+						<option value="SA">存入</option>
+						<option value="T">取出</option>
+						<option value="D">红利</option>
+						<option value="I">利息</option>
+					</select>
+				</div>
+            </div>
+			<div class="uk-form-row">
+                <label class="uk-form-label">日期:</label>
+                <div class="uk-form-controls">
+                    <input v-model="occur_date" name="occur_date" type="text" placeholder="日期"  data-uk-datepicker="{format:'DD.MM.YYYY'}"  class="uk-width-2-10">
+                </div>
+            </div>
+			<div class="uk-form-row">
+                <label class="uk-form-label">股票代码:</label>
+                <div class="uk-form-controls">
+                    <input v-model="stock_code" name="stock_code" type="text" placeholder="股票代码" class="uk-width-2-10">
+                </div>
+            </div>
+			<div class="uk-form-row">
+                <label class="uk-form-label">交易价格:</label>
+                <div class="uk-form-controls">
+                    <input v-model="deal_price" name="deal_price" type="text" placeholder="交易价格" class="uk-width-2-10">
+                </div>
+            </div>
+			<div class="uk-form-row">
+                <label class="uk-form-label">交易数量:</label>
+                <div class="uk-form-controls">
+                    <input v-model="deal_num" name="deal_num" type="text" placeholder="交易数量" class="uk-width-2-10">
+                </div>
+            </div>
+			<div class="uk-form-row">
+                <label class="uk-form-label">股票余额:</label>
+                <div class="uk-form-controls">
+                    <input v-model="stock_balance" name="stock_balance" type="text" placeholder="股票余额" class="uk-width-2-10">
+                </div>
+            </div>
+			<div class="uk-form-row">
+                <label class="uk-form-label">金额:</label>
+                <div class="uk-form-controls">
+                    <input v-model="occur_amount" name="occur_amount" type="text" placeholder="金额" class="uk-width-2-10">
+                </div>
+            </div>
+			<div class="uk-form-row">
+                <label class="uk-form-label">佣金:</label>
+                <div class="uk-form-controls">
+                    <input v-model="commission" name="commission" type="text" placeholder="佣金" class="uk-width-2-10" value="-2.99">
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <button type="submit" class="uk-button uk-button-primary"><i class="uk-icon-save"></i> 保存</button>
+                <a href="/manage/create_tiger_trade_record" class="uk-button"><i class="uk-icon-times"></i> 取消</a>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

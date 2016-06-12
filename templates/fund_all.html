@@ -1,0 +1,76 @@
+{% extends '__base__.html' %}
+
+{% block title %}资金{% endblock %}
+
+{% block beforehead %}
+
+<script>
+function initVM(data) {
+    var vm = new Vue({
+        el: '#vm',
+        data: {
+            funds: data.funds,
+        }
+    });
+    $('#vm').show();
+}
+$(function() {
+    $.getJSON('/api/fund_all', 
+		function (results, err) {
+        //if (err) {
+        //    return fatal(err);
+        //}
+        $('#loading').hide();
+        initVM(results);
+    });
+});
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="uk-width-1-1 uk-margin-bottom">
+        <div class="uk-panel uk-panel-box">
+            <ul class="uk-breadcrumb">
+                <li><a href="/manage/fund_all">全部</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="error" class="uk-width-1-1">
+    </div>
+
+    <div id="loading" class="uk-width-1-1 uk-text-center">
+        <span><i class="uk-icon-spinner uk-icon-medium uk-icon-spin"></i> 正在加载...</span>
+    </div>
+
+    <div id="vm" class="uk-width-1-1">
+       
+        <table class="uk-table uk-table-hover">
+            <thead>
+                <tr>
+                    <th class="uk-width-1-10">券商</th>
+					<th class="uk-width-1-10">货币单位</th>
+					<th class="uk-width-1-10">金额</th>  
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-repeat="fund: funds" >                   
+					<td>
+                        <span v-text="fund.broker"></span>
+                    </td>                   
+					<td>
+                        <span v-text="fund.currency"></span>
+                    </td>
+					<td>
+                        <span v-text="fund.sum_amount"></span>
+                    </td>                    
+					
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock %}

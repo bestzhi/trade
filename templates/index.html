@@ -1,0 +1,37 @@
+
+{% extends '__base__.html' %}
+
+{% block title %}Stock{% endblock %}
+
+{% block beforehead %}
+
+<script>
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="uk-width-medium-3-4">
+    {% for stock in stocks %}
+        <article class="uk-article">
+            <p><a href="#">{{ stock.stock_code }}</a></p>
+            <p class="uk-article-meta">数量{{ stock.current_num }}</p>
+            <p><a href="#"><p>{{ stock.current_amount }}</a></p>
+        </article>
+        <hr class="uk-article-divider">
+    {% endfor %}
+    </div>
+
+    <div class="uk-width-medium-1-4">
+        <div class="uk-panel uk-panel-header">
+            <h3 class="uk-panel-title">友情链接</h3>
+            <ul class="uk-list uk-list-line">
+                <li><i class="uk-icon-thumbs-o-up"></i> <a href="/manage/stocks_tiger">老虎证券</a></li>
+                <li><i class="uk-icon-thumbs-o-up"></i> <a href="/manage/stocks_citic">中信证券</a></li>
+                <li><i class="uk-icon-thumbs-o-up"></i> <a href="/manage/stocks">申万证券</a></li>
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
