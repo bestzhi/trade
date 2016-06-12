@@ -1,1 +1,3 @@
-
+asyncio
+aiohttp
+jinja2
