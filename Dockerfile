@@ -1,10 +1,10 @@
-FROM python:2.7.8
+FROM python:3.4.3
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY . /usr/src/app
 
-RUN web pip install -r requirements.txt
+RUN pip install -r requirements.txt
 
 EXPOSE 9000
 
