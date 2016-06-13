@@ -507,7 +507,10 @@ def api_invest_portfolio_all():
 		sum_stock = dict()
 		sum_stock['stock_code'] = '申万总计'
 		sum_stock['current_num'] = '--￥--'
-		sum_stock['current_amount'] = "%.2f" % (sum_amount * -1)
+		
+		temp_sum_stock = sum_amount * -1
+		
+		sum_stock['current_amount'] = "%.2f" % temp_sum_stock
 		stocks.append(sum_stock)
 
 		split_stock = dict()
@@ -546,7 +549,7 @@ def api_invest_portfolio_all():
 	all_sum_stock = dict()
 	all_sum_stock['stock_code'] = 'A股总计'
 	all_sum_stock['current_num'] = '--￥--'
-	all_sum_stock['current_amount'] = "%.2f" % (sum_stock['current_amount'] + citic_temp_sum_stock)
+	all_sum_stock['current_amount'] = "%.2f" % (temp_sum_stock + citic_temp_sum_stock)
 	stocks.append(all_sum_stock)
 
 	stocks.append(split_stock)
