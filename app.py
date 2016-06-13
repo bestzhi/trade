@@ -112,15 +112,20 @@ def index(request):
 
 @asyncio.coroutine
 def init(loop):
-	yield from orm.create_pool(loop=loop, host='127.0.0.1', port=3306, user='stock', password='123456', db='investment')
+	yield from orm.create_pool(loop=loop, 
+ 		host=os.getenv('MYSQL_PORT_3306_TCP_ADDR'), 
+ 		port=int(os.getenv('MYSQL_PORT_3306_TCP_PORT')), 
+ 		user=os.getenv('MYSQL_USERNAME'), 
+ 		password=os.getenv('MYSQL_PASSWORD'), 
+ 		db=os.getenv('MYSQL_INSTANCE_NAME'))
 	app = web.Application(loop=loop, middlewares=[
 		logger_factory, auth_factory, response_factory
 	])
 	init_jinja2(app, filters=dict(datetime=datetime_filter))
 	add_routes(app, 'handlers')
 	add_static(app)
-	srv = yield from loop.create_server(app.make_handler(), '127.0.0.1', 9000)
-	logging.info('server started at http://127.0.0.1:9000...')
+	srv = yield from loop.create_server(app.make_handler(), '0.0.0.0', 9000)
+ 	logging.info('server started at http://0.0.0.0:9000...')
 	return srv
 
 @asyncio.coroutine
