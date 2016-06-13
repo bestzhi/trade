@@ -417,7 +417,7 @@ def api_invest_portfolio():
 		sum_stock = dict()
 		sum_stock['stock_code'] = 'Total'
 		sum_stock['current_num'] = '----'
-		sum_stock['current_amount'] = sum_amount * -1
+		sum_stock['current_amount'] = "%.2f" % (sum_amount * -1)
 		stocks.append(sum_stock)
 
 	return dict(stocks=stocks)
@@ -507,7 +507,7 @@ def api_invest_portfolio_all():
 		sum_stock = dict()
 		sum_stock['stock_code'] = '申万总计'
 		sum_stock['current_num'] = '--￥--'
-		sum_stock['current_amount'] = sum_amount * -1
+		sum_stock['current_amount'] = "%.2f" % (sum_amount * -1)
 		stocks.append(sum_stock)
 
 		split_stock = dict()
