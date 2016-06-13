@@ -2,29 +2,77 @@
 
 import re, time, json, logging, hashlib, base64, asyncio
 
+from aiohttp import web
+
 from coroweb import get, post
 
-from models import Stock, Stock_citic, Stock_tiger
+from models import Stock, Stock_citic, Stock_tiger, User
 
-from apis import Page, APIValueError
+from apis import Page, APIValueError, APIPermissionError
+
+from config import configs
 
 from decimal import *
 
+COOKIE_NAME = 'awesession'
+_COOKIE_KEY = configs.session.secret
+
+def check_admin(request):
+    if request.__user__ is None:
+        raise APIPermissionError()
+
+def user2cookie(user, max_age):
+    '''
+    Generate cookie str by user.
+    '''
+    # build cookie string by: id-expires-sha1
+    expires = str(int(time.time() + max_age))
+    s = '%s-%s-%s-%s' % (user.id, user.passwd, expires, _COOKIE_KEY)
+    L = [user.id, expires, hashlib.sha1(s.encode('utf-8')).hexdigest()]
+    return '-'.join(L)
+
+@asyncio.coroutine
+def cookie2user(cookie_str):
+    '''
+    Parse cookie and load user if cookie is valid.
+    '''
+    if not cookie_str:
+        return None
+    try:
+        L = cookie_str.split('-')
+        if len(L) != 3:
+            return None
+        uid, expires, sha1 = L
+        if int(expires) < time.time():
+            return None
+        stock = yield from Stock.find('1')
+        user = yield from User.find(uid)
+        if user is None:
+            return None
+        s = '%s-%s-%s-%s' % (uid, user.passwd, expires, _COOKIE_KEY)
+        if sha1 != hashlib.sha1(s.encode('utf-8')).hexdigest():
+            logging.info('invalid sha1')
+            return None
+        user.passwd = '******'
+        return user
+    except Exception as e:
+        logging.exception(e)
+        return None
+
 @get('/')
 def index(request):
-	stocks = yield from Stock.findAll()
+	#stocks = yield from Stock.findAll()
 	return {
-		'__template__': 'index.html',
-		'stocks': stocks 
+		'__template__': 'index.html' 
 	}
 
 
 @get('/api/stocks')
-def api_get_stocks():
-	stocks = yield from Stock.findAll(orderBy='id desc')
-	for s in stocks:
-		s.occur_date = str(s.occur_date)
-	return dict(stocks=stocks)
+def api_get_stocks(request):
+    stocks = yield from Stock.findAll(orderBy='id desc')
+    for s in stocks:
+        s.occur_date = str(s.occur_date)
+    return dict(stocks=stocks)
 
 
 
@@ -701,3 +749,51 @@ def manage_profit_all():
 		'__template__': 'profit_all.html'
 	}
 
+@get('/signin')
+def signin():
+    return {
+        '__template__': 'signin.html'
+    }
+
+@get('/signout')
+def signout(request):
+    referer = request.headers.get('Referer')
+    r = web.HTTPFound(referer or '/')
+    r.set_cookie(COOKIE_NAME, '-deleted-', max_age=0, httponly=True)
+    logging.info('user signed out.')
+    return r
+
+@post('/authenticate')
+def authenticate(*, email, passwd):
+    if not email:
+        raise APIValueError('email', 'Invalid email.')
+    if not passwd:
+        raise APIValueError('passwd', 'Invalid password.')
+    users = yield from User.findAll('email=?', [email])
+    if len(users) == 0:
+        raise APIValueError('email', 'Email not exist.')
+    user = users[0]
+	# check passwd:
+    sha1 = hashlib.sha1()
+    sha1.update(user.id.encode('utf-8'))
+    sha1.update(b':')
+    sha1.update(passwd.encode('utf-8'))
+    logging.info('sha1 ' + sha1.hexdigest())
+    logging.info('passwd ' + user.passwd)
+    if user.passwd != sha1.hexdigest():
+        raise APIValueError('passwd', 'Invalid password.')
+    # authenticate ok, set cookie:
+    r = web.Response()
+    r.set_cookie(COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
+    user.passwd = '******'
+    r.content_type = 'application/json'
+    r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
+    return r
+
+# 计算加密cookie:
+def user2cookie(user, max_age):
+    # build cookie string by: id-expires-sha1
+    expires = str(int(time.time() + max_age))
+    s = '%s-%s-%s-%s' % (user.id, user.passwd, expires, _COOKIE_KEY)
+    L = [user.id, expires, hashlib.sha1(s.encode('utf-8')).hexdigest()]
+    return '-'.join(L)

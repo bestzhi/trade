@@ -9,6 +9,8 @@ from jinja2 import Environment, FileSystemLoader
 import orm
 from coroweb import add_routes, add_static
 
+from handlers import cookie2user, COOKIE_NAME
+
 def init_jinja2(app, **kw):
 	logging.info('init jinja2...')
 	options = dict(
@@ -77,6 +79,7 @@ def response_factory(app, handler):
 				resp.content_type = 'application/json;charset=utf-8'
 				return resp
 			else:
+				r['__user__'] = request.__user__
 				resp = web.Response(body=app['__templating__'].get_template(template).render(**r).encode('utf-8'))
 				resp.content_type = 'text/html;charset=utf-8'
 				return resp
@@ -109,21 +112,33 @@ def index(request):
 
 @asyncio.coroutine
 def init(loop):
-	yield from orm.create_pool(loop=loop, 
-		host=os.getenv('MYSQL_PORT_3306_TCP_ADDR'), 
-		port=int(os.getenv('MYSQL_PORT_3306_TCP_PORT')), 
-		user=os.getenv('MYSQL_USERNAME'), 
-		password=os.getenv('MYSQL_PASSWORD'), 
-		db=os.getenv('MYSQL_INSTANCE_NAME'))
+	yield from orm.create_pool(loop=loop, host='127.0.0.1', port=3306, user='stock', password='123456', db='investment')
 	app = web.Application(loop=loop, middlewares=[
-		logger_factory, response_factory
+		logger_factory, auth_factory, response_factory
 	])
 	init_jinja2(app, filters=dict(datetime=datetime_filter))
 	add_routes(app, 'handlers')
 	add_static(app)
-	srv = yield from loop.create_server(app.make_handler(), '0.0.0.0', 9000)
-	logging.info('server started at http://0.0.0.0:9000...')
+	srv = yield from loop.create_server(app.make_handler(), '127.0.0.1', 9000)
+	logging.info('server started at http://127.0.0.1:9000...')
 	return srv
+
+@asyncio.coroutine
+def auth_factory(app, handler):
+    @asyncio.coroutine
+    def auth(request):
+        logging.info('check user: %s %s' % (request.method, request.path))
+        request.__user__ = None
+        cookie_str = request.cookies.get(COOKIE_NAME)
+        if cookie_str:
+            user = yield from cookie2user(cookie_str)
+            if user:
+                logging.info('set current user: %s' % user.email)
+                request.__user__ = user
+        if (request.path.startswith('/manage/') or request.path.startswith('/api/')) and (request.__user__ is None):
+            return web.HTTPFound('/signin')
+        return (yield from handler(request))
+    return auth
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(init(loop))

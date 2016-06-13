@@ -75,3 +75,9 @@ class Stock_type(Model):
 	type = StringField(primary_key=True, ddl='varchar(45)')
 	name = StringField(ddl='varchar(45)')
 
+class User(Model):
+        __table__ = 'user'
+        id = StringField(primary_key=True, ddl='varchar(50)')
+        email = StringField(ddl='varchar(50)')
+        passwd = StringField(ddl='varchar(50)')
+        name = StringField(ddl='varchar(50)')

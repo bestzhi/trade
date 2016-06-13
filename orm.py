@@ -145,7 +145,7 @@ class ModelMetaclass(type):
 		'''
 		attrs['__mappings__'] = mappings
 		attrs['__table__'] = tableName
-		attrs['__primaryKey__'] = primaryKey
+		attrs['__primary_key__'] = primaryKey
 		attrs['__fields__'] = fields
 		attrs['__select__'] = 'select `%s`, %s from `%s`' % (primaryKey, ', '.join(escaped_fields), tableName)
 		attrs['__insert__'] = 'insert into `%s` (%s) values (%s)' % (tableName, ', '.join(escaped_fields), create_args_string(len(escaped_fields)))
@@ -321,7 +321,7 @@ class Model(dict, metaclass=ModelMetaclass):
 	@asyncio.coroutine
 	def find(cls, pk):
 		' find object by primary key. '
-		rs = yield from select('%s from `%s`=?' % (cls.__select__, cls.__primary_key__), [pk], 1)
+		rs = yield from select('%s where `%s`=?' % (cls.__select__, cls.__primary_key__), [pk], 1)
 		if len(rs) == 0:
 			return None
 		return cls(**rs[0])
