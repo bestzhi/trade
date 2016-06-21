@@ -55,6 +55,7 @@ $(function() {
                 <tr>
                     <th class="uk-width-1-10">股票代码</th>
 					<th class="uk-width-1-10">股票余额</th>
+					<th class="uk-width-1-10">股票价格</th>
 					<th class="uk-width-1-10">股票投入金额</th>  
                 </tr>
             </thead>
@@ -65,6 +66,9 @@ $(function() {
                     </td>                   
 					<td>
                         <span v-text="stock.current_num"></span>
+                    </td>
+                    <td>
+                        <span v-text="stock.current_price"></span>
                     </td>
 					<td>
                         <span v-text="stock.current_amount"></span>
