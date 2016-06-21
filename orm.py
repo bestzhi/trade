@@ -260,7 +260,7 @@ class Model(dict, metaclass=ModelMetaclass):
 	@asyncio.coroutine
 	def findInvestment(cls, tableName=None, where=None, args=None):
 		' find investment .'
-		sql = ['select stock_code, sum_amount as current_amount, sum_num as current_num from (select stock_code, sum(occur_amount) as sum_amount, sum(deal_num) as sum_num '
+		sql = ['select stock_code, format(sum_amount / sum_num * -1, 2) as current_price, sum_amount as current_amount, sum_num as current_num from (select stock_code, sum(occur_amount) as sum_amount, sum(deal_num) as sum_num '
 			+ 'from ' + tableName + ' where stock_code is not null and stock_code != \'\' group by stock_code order by sum_num desc, occur_date desc) as a '
 			+ 'where sum_num > 0']
 		
