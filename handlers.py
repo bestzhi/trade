@@ -262,13 +262,18 @@ def get_page_index(page_str):
 
 '''申万记录列表返回json'''
 @get('/api/stocks_page')
-def api_stocks_page(*, page='1'):
+def api_stocks_page(*, page='1', **kw):
 	page_index = get_page_index(page)
-	num = yield from Stock.findNumber('count(id)')
+	if 'stock_code' in kw:
+		stock_code = kw['stock_code']
+		where_clause = 'stock_code = \'' + stock_code + '\''
+	else:
+		where_clause = '1=1'
+	num = yield from Stock.findNumber('count(id)', where=where_clause)
 	p = Page(num, page_index)
 	if num == 0:
 		return dict(page=p, stocks=())
-	stocks = yield from Stock.findAll(orderBy='occur_date desc', limit=(p.offset, p.limit))
+	stocks = yield from Stock.findAll(where=where_clause, orderBy='occur_date desc, id desc', limit=(p.offset, p.limit))
 	for s in stocks:
 		s.occur_date = str(s.occur_date)[0:10]
 		s.stamp_tax = "%.2f" % (s.stamp_tax + s.transfer_fee + s.other_fee + s.commission + s.charge_fee)
@@ -297,13 +302,18 @@ def api_stocks_page(*, page='1'):
 
 '''中信记录列表返回json'''
 @get('/api/stocks_citic_page')
-def api_stocks_citic_page(*, page='1'):
+def api_stocks_citic_page(*, page='1', **kw):
 	page_index = get_page_index(page)
-	num = yield from Stock_citic.findNumber('count(id)')
+	if 'stock_code' in kw:
+		stock_code = kw['stock_code']
+		where_clause = 'stock_code = \'' + stock_code + '\''
+	else:
+		where_clause = '1=1'
+	num = yield from Stock_citic.findNumber('count(id)', where=where_clause)
 	p = Page(num, page_index)
 	if num == 0:
 		return dict(page=p, stocks=())
-	stocks = yield from Stock_citic.findAll(orderBy='occur_date desc', limit=(p.offset, p.limit))
+	stocks = yield from Stock_citic.findAll(where=where_clause, orderBy='occur_date desc, id desc', limit=(p.offset, p.limit))
 	for s in stocks:
 		s.occur_date = str(s.occur_date)[0:10]
 		s.stamp_tax = "%.2f" % (s.stamp_tax + s.transfer_fee + s.other_fee + s.commission + s.charge_fee)
@@ -332,13 +342,18 @@ def api_stocks_citic_page(*, page='1'):
 
 '''老虎记录列表返回json'''
 @get('/api/stocks_tiger_page')
-def api_stocks_tiger_page(*, page='1'):
+def api_stocks_tiger_page(*, page='1', **kw):
 	page_index = get_page_index(page)
-	num = yield from Stock_tiger.findNumber('count(id)')
+	if 'stock_code' in kw:
+		stock_code = kw['stock_code']
+		where_clause = 'stock_code = \'' + stock_code + '\''
+	else:
+		where_clause = '1=1'
+	num = yield from Stock_tiger.findNumber('count(id)', where=where_clause)
 	p = Page(num, page_index)
 	if num == 0:
 		return dict(page=p, stocks=())
-	stocks = yield from Stock_tiger.findAll(orderBy='occur_date desc', limit=(p.offset, p.limit))
+	stocks = yield from Stock_tiger.findAll(where=where_clause, orderBy='occur_date desc, id desc', limit=(p.offset, p.limit))
 	for s in stocks:
 		s.occur_date = str(s.occur_date)[0:10]
 		s.deal_price = str(s.deal_price)
