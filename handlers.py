@@ -417,6 +417,7 @@ def api_invest_portfolio():
 		sum_stock = dict()
 		sum_stock['stock_code'] = 'Total'
 		sum_stock['current_num'] = '----'
+		sum_stock['current_price'] = '----'
 		sum_stock['current_amount'] = "%.2f" % (sum_amount * -1)
 		stocks.append(sum_stock)
 
@@ -447,6 +448,7 @@ def api_invest_portfolio_citic():
 		sum_stock = dict()
 		sum_stock['stock_code'] = 'Total'
 		sum_stock['current_num'] = '----'
+		sum_stock['current_price'] = '----'
 		sum_stock['current_amount'] = "%.2f" % (sum_amount * -1)
 		stocks.append(sum_stock)
 
@@ -476,6 +478,7 @@ def api_invest_portfolio_tiger():
 		sum_stock = dict()
 		sum_stock['stock_code'] = 'Total'
 		sum_stock['current_num'] = '----'
+		sum_stock['current_price'] = '----'
 		sum_stock['current_amount'] = str(sum_amount * -1)
 		stocks.append(sum_stock)
 
