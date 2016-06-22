@@ -32,7 +32,8 @@ function initVM(data) {
 }
 $(function() {
     $.getJSON('/api/stocks_page', {
-        page: {{ page_index }}
+        page: {{ page_index }},
+        stock_code: {{ stock_code }}
     }, function (results, err) {
         //if (err) {
         //    return fatal(err);
@@ -90,7 +91,7 @@ $(function() {
                         <span v-text="stock.type"></span>
                     </td>
 					<td>
-                        <a target="_blank" v-attr="href: '/stock/'+stock.id" v-text="stock.stock_code"></a>
+                        <a target="_blank" v-attr="href: '/manage/stocks?stock_code='+stock.stock_code" v-text="stock.stock_code"></a>
                     </td>
                     <td>
                         <span v-text="stock.deal_price"></span>
