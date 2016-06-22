@@ -266,7 +266,10 @@ def api_stocks_page(*, page='1', **kw):
 	page_index = get_page_index(page)
 	if 'stock_code' in kw:
 		stock_code = kw['stock_code']
-		where_clause = 'stock_code = \'' + stock_code + '\''
+		if(stock_code != '' and stock_code != '0'):
+			where_clause = 'stock_code = \'' + stock_code + '\''
+		else:
+			where_clause = '1=1'
 	else:
 		where_clause = '1=1'
 	num = yield from Stock.findNumber('count(id)', where=where_clause)
@@ -306,7 +309,10 @@ def api_stocks_citic_page(*, page='1', **kw):
 	page_index = get_page_index(page)
 	if 'stock_code' in kw:
 		stock_code = kw['stock_code']
-		where_clause = 'stock_code = \'' + stock_code + '\''
+		if(stock_code != '' and stock_code != '0'):
+			where_clause = 'stock_code = \'' + stock_code + '\''
+		else:
+			where_clause = '1=1'
 	else:
 		where_clause = '1=1'
 	num = yield from Stock_citic.findNumber('count(id)', where=where_clause)
@@ -346,7 +352,10 @@ def api_stocks_tiger_page(*, page='1', **kw):
 	page_index = get_page_index(page)
 	if 'stock_code' in kw:
 		stock_code = kw['stock_code']
-		where_clause = 'stock_code = \'' + stock_code + '\''
+		if(stock_code != '' and stock_code != '0'):
+			where_clause = 'stock_code = \'' + stock_code + '\''
+		else:
+			where_clause = '1=1'
 	else:
 		where_clause = '1=1'
 	num = yield from Stock_tiger.findNumber('count(id)', where=where_clause)
@@ -385,27 +394,42 @@ def api_stocks_tiger_page(*, page='1', **kw):
 
 '''申万记录查询'''
 @get('/manage/stocks')
-def manage_stocks(*, page='1'):
+def manage_stocks(*, page='1', **kw):
+	if 'stock_code' in kw:
+		stock_code = kw['stock_code']
+	else:
+		stock_code = '0'
 	return {
 		'__template__': 'manage_stocks.html',
-		'page_index': get_page_index(page)
+		'page_index': get_page_index(page),
+		'stock_code': stock_code
 	}
 
 
 '''老虎记录查询'''
 @get('/manage/stocks_tiger')
-def manage_stocks_tiger(*, page='1'):
+def manage_stocks_tiger(*, page='1', **kw):
+	if 'stock_code' in kw:
+		stock_code = kw['stock_code']
+	else:
+		stock_code = '0'
 	return {
 		'__template__': 'manage_stocks_tiger.html',
-		'page_index': get_page_index(page)
+		'page_index': get_page_index(page),
+		'stock_code': stock_code
 	}
 
 '''中信记录查询'''
 @get('/manage/stocks_citic')
-def manage_stocks_citic(*, page='1'):
+def manage_stocks_citic(*, page='1', **kw):
+	if 'stock_code' in kw:
+		stock_code = kw['stock_code']
+	else:
+		stock_code = '0'
 	return {
 		'__template__': 'manage_stocks_citic.html',
-		'page_index': get_page_index(page)
+		'page_index': get_page_index(page),
+		'stock_code': stock_code
 	}
 
 
