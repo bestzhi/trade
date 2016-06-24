@@ -303,6 +303,35 @@ class Model(dict, metaclass=ModelMetaclass):
 
 	@classmethod
 	@asyncio.coroutine
+	def findProfitWithOldProfit(cls, tableName=None, broker=None, where=None, args=None):
+		' find Profit with old Profit .'
+		sql = ['select stock_code, sum(occur_amount) as sum_amount from ' + tableName  
+			+ ' where exists (select occur_date from last_order_date where broker = \'' + broker
+			+ ' \' and stock_code = '+ tableName +'.stock_code) and occur_date <= '
+			+ '(select occur_date from last_order_date where broker = \''+ broker + '\' and stock_code = ' + tableName
+			+ '.stock_code) group by stock_code']
+
+		rs = yield from select(' '.join(sql), args)
+		return rs
+
+
+	@classmethod
+	@asyncio.coroutine
+	def findCurrentInvestment(cls, tableName=None, broker=None, where=None, args=None):
+		' find current Investment .'
+		sql = ['select stock_code, sum(occur_amount) * -1 /sum(deal_num) as current_price, sum(deal_num) as current_num, ' 
+			+ 'sum(occur_amount) * -1 /sum(deal_num) * sum(deal_num) as current_amount '
+			+ 'from ' + tableName + ' as t1 where occur_date >  if (exists (select occur_date from last_order_date where broker = \''
+			+ broker + '\' and stock_code = t1.stock_code), (select occur_date from last_order_date where broker = \''
+			+ broker + '\' and stock_code = t1.stock_code), \'2000-01-01\')'
+			+ ' group by stock_code having current_price is not null']
+
+		rs = yield from select(' '.join(sql), args)
+		return rs
+	
+
+	@classmethod
+	@asyncio.coroutine
 	def findFund(cls, tableName=None, where=None, args=None):
 		'find fund. '
 		sql = ['select sum(occur_amount) as sum_amount from ' + tableName + ' where type in (\'SA\', \'T\');']
