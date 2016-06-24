@@ -794,6 +794,103 @@ def manage_profit_all():
 		'__template__': 'profit_all.html'
 	}
 
+'''历史收益'''
+@get('/api/old_profit_citic')
+def api_old_profit_citic():
+
+	stocks = yield from Stock_citic.findProfitWithOldProfit(tableName='stock_citic', broker='citic')
+	return dict(stocks=stocks)
+
+
+@get('/manage/old_profit_citic')
+def manage_old_profit_citic():
+	return {
+		'__template__': 'old_profit_citic.html'
+	}
+
+
+@get('/api/old_profit')
+def api_old_profit():
+
+	stocks = yield from Stock.findProfitWithOldProfit(tableName='stock', broker='swhy')
+	return dict(stocks=stocks)
+
+
+@get('/manage/old_profit')
+def manage_old_profit():
+	return {
+		'__template__': 'old_profit.html'
+	}
+
+
+@get('/api/old_profit_tiger')
+def api_old_profit_tiger():
+
+	stocks = yield from Stock_tiger.findProfitWithOldProfit(tableName='stock_tiger', broker='tiger')
+	for s in stocks:
+		s['sum_amount'] = '%.2f' % s['sum_amount']
+	return dict(stocks=stocks)
+
+
+@get('/manage/old_profit_tiger')
+def manage_old_profit_tiger():
+	return {
+		'__template__': 'old_profit_tiger.html'
+	}
+
+'''当前组合'''
+@get('/api/current_investment_citic')
+def api_current_investment_citic():
+
+	stocks = yield from Stock_citic.findCurrentInvestment(tableName='stock_citic', broker='citic')
+	for s in stocks:
+		s['current_price'] = '%.2f' % s['current_price']
+		s['current_num'] = '%.2f' % s['current_num']
+		s['current_amount'] = '%.2f' % s['current_amount']
+	return dict(stocks=stocks)
+
+
+@get('/manage/current_investment_citic')
+def manage_current_investment_citic():
+	return {
+		'__template__': 'current_investment_citic.html'
+	}
+
+
+@get('/api/current_investment')
+def api_current_investment():
+
+	stocks = yield from Stock.findCurrentInvestment(tableName='stock', broker='swhy')
+	for s in stocks:
+		s['current_price'] = '%.2f' % s['current_price']
+		s['current_num'] = '%.2f' % s['current_num']
+		s['current_amount'] = '%.2f' % s['current_amount']
+	return dict(stocks=stocks)
+
+
+@get('/manage/current_investment')
+def manage_current_investment():
+	return {
+		'__template__': 'current_investment.html'
+	}
+
+@get('/manage/current_investment_tiger')
+def manage_current_investment_tiger():
+	return {
+		'__template__': 'current_investment_tiger.html'
+	}
+
+@get('/api/current_investment_tiger')
+def api_current_investment_tiger():
+
+	stocks = yield from Stock_tiger.findCurrentInvestment(tableName='stock_tiger', broker='tiger')
+	for s in stocks:
+		s['current_price'] = '%.2f' % s['current_price']
+		s['current_num'] = '%.2f' % s['current_num']
+		s['current_amount'] = '%.2f' % s['current_amount']
+	return dict(stocks=stocks)
+
+
 @get('/signin')
 def signin():
     return {
